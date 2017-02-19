@@ -59,7 +59,7 @@ void affichage_graphe_matrice(graphe_matrice *g)
 		{
 			printf(" %2d ",g->mat[x][y]);
 		}
-		printf("\t degre : %d",degre_matrice(g,y));
+		printf("\t degre : %d\n",degre_matrice(g,y));
 	}
 }
 
@@ -167,7 +167,7 @@ graphe_matrice * randomgraph(int n,int p)
 	for ( i = 0; i < n; i++)
 		for( j = 0; j < n; j++)
 			if(i!=j && rand()%n < p) set_edge_matrice_uni(g,i,j,1);
-		
+
 	return g;
 }
 
@@ -195,9 +195,9 @@ graphe_matrice* hypercube(int degre)
 	printf("degré : %d -- sommets : %d\n", degre,S);
 	g=initialisation(S);
 
+	S=1;
 	for(d=0;d<degre;d++)
 	{
-		S=puiss(d);
 		//clone cube précédent
 		for(i=0;i<S;i++)
 			for(j=0;j<S;j++)
@@ -207,6 +207,7 @@ graphe_matrice* hypercube(int degre)
 		{
 			set_edge_matrice(g,i,i+S,1);
 		}
+		S=S*2;
 	}
 	//nettoie tableau
 	for(i=0;i<puiss(degre);i++)

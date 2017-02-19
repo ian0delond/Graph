@@ -44,14 +44,14 @@ int main()
 	srand((unsigned) time(&t));
 
 	//La génération de grille
-	g = randomgraph(8,5);
+	g = hypercube(3);
 	ponderation(g,2,8);
 	affichage_graphe_matrice(g);
-	gen_dir_dot(g,"testgen_graph.dot");	
+	gen_dir_dot(g,"Z.dot");	
 }
 
 /*
-gcc *.c -o gen_graph
-./gen_graph
-dot -Tpng testgen_graph.dot -o testgen_graph.png
+gcc *.c -o AA
+./AA
+dot -Tpng Z.dot -o Z.png
 */
