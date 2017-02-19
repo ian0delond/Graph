@@ -34,7 +34,7 @@ void cycle(graphe_matrice *g);
 
 //void chemin(graphe_matrice *g);
 
-//void randomgraph(graphe_matrice *g,int p);
+graphe_matrice * randomgraph(int n,int p);
 
 graphe_matrice * hypercube(int degre);
 

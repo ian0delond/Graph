@@ -157,6 +157,20 @@ void cycle(graphe_matrice*g)
 	set_edge_matrice_uni(g,i,0,1);
 }
 
+graphe_matrice * randomgraph(int n,int p)
+{
+	int i,j;
+	graphe_matrice* g;
+
+	g = initialisation(n);
+
+	for ( i = 0; i < n; i++)
+		for( j = 0; j < n; j++)
+			if(i!=j && rand()%n < p) set_edge_matrice_uni(g,i,j,1);
+		
+	return g;
+}
+
 int puiss(int degre)
 {
 	int i,S=1;

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include "graph_mod.h"
+#include "graph_algo.h"
 
 
 int gen_dir_dot (graphe_matrice *g, char *nomdot)
@@ -43,10 +44,9 @@ int main()
 	srand((unsigned) time(&t));
 
 	//La génération de grille
-	g = initialisation(4);
-	cycle(g);
+	g = randomgraph(8,5);
 	ponderation(g,2,8);
-	//affichage_graphe_matrice(g);
+	affichage_graphe_matrice(g);
 	gen_dir_dot(g,"testgen_graph.dot");	
 }
 
