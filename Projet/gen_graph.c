@@ -44,10 +44,9 @@ int main()
 	srand((unsigned) time(&t));
 
 	//La génération de grille
-	g = hypercube(3);
+	g = hypercube(5);
 	ponderation(g,2,8);
-	affichage_graphe_matrice(g);
-	gen_dir_dot(g,"Z.dot");	
+	gen_dir_dot(g,"A.dot");
 }
 
 /*

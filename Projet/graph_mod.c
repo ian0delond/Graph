@@ -192,7 +192,7 @@ graphe_matrice* hypercube(int degre)
 	graphe_matrice*g;
 
 	S=puiss(degre);
-	printf("degré : %d -- sommets : %d\n", degre,S);
+	printf("hypercube\ndegré : %d -- sommets : %d\n", degre,S);
 	g=initialisation(S);
 
 	S=1;
