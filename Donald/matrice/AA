@@ -1,0 +1,5 @@
+graph G{
+size="5.0,5.0";
+ratio="fill";
+node[height=0.1, width=0.1]
+}
