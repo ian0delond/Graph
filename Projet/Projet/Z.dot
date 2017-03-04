@@ -1,0 +1,17 @@
+digraph G{
+size="15.0,15.0";
+ratio="fill";
+node[height=0.1, width=0.1]
+	0 -> 1 [label=4]
+	0 -> 2 [label=4]
+	0 -> 4 [label=3]
+	1 -> 3 [label=4]
+	1 -> 5 [label=6]
+	2 -> 3 [label=5]
+	2 -> 6 [label=7]
+	3 -> 7 [label=4]
+	4 -> 5 [label=2]
+	4 -> 6 [label=6]
+	5 -> 7 [label=5]
+	6 -> 7 [label=2]
+}
