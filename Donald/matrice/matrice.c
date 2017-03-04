@@ -2,14 +2,16 @@
 #include <stdio.h>
 #include <string.h>
 
-struct graphe_matrice
-{
-	int ** mat;
-	char **mots;
-	int taille;
-};
-typedef struct graphe_matrice graphe_matrice;  
 
+typedef struct graphe_matrice graphe_matrice;  
+struct chaine
+{
+	int indice_matrice;
+	int poid;
+	struct chaine * next;
+};
+typedef struct chaine chaine;
+/*
 int degre_matrice(graphe_matrice *g,int s)
 {
 	int i,d=0;
@@ -19,29 +21,8 @@ int degre_matrice(graphe_matrice *g,int s)
 	}
 	return d;
 }
-
-void affichage_graphe_matrice(graphe_matrice *g)
-{
-	int i,x,y;
-	printf("\n Le graph contient %d sommets",g->taille);
-	printf("\n Matrice:\n\t");
-	for (i=0;i<g->taille;i++)
-	{
-		if(i<10)	printf(" [%d]",i);
-		else		printf("[%d",i);
-	}
-	printf("\n");
-	for (y=0;y<g->taille;y++)
-	{
-		printf("\n[%d]\t",y);
-		for(x=0;x<g->taille;x++)
-		{
-			printf(" %2d ",g->mat[x][y]);
-		}
-		printf("\t degre : %d\n",degre_matrice(g,y));
-	}
-}
-
+*/
+/*
 int gen_dot (graphe_matrice *g, char *nomdot)
 {
 	FILE* fichier;
@@ -55,70 +36,65 @@ int gen_dot (graphe_matrice *g, char *nomdot)
 	fputs("}",fichier);
 
 	return 0;
-}
+}*/
 
-void ponderation(graphe_matrice * g,graphe_matrice *g2)
-{
-	int i,j,y;
-	int cnt =0;
-	for(i=0;i<g->taille-4;i++)
-	{
-//		printf("i = %d --- %s\n", i,g->mots[i]);
-		for(j=0;j<g2->taille-1;j++)
-		{
-			if(g2->mots[j]==NULL)
-				break;
-//			printf("j = %d --- %s\n",j,g2->mots[j]);
-			if(strcmp(g->mots[i],g2->mots[j])==0)
-			{
-				for(y=0;y<g->taille-4;y++)
-				{
-					if(strcmp(g->mots[y],g2->mots[j+1])==0)
-					{
-						cnt++;
-					printf("nb match = %d --- i = %d --- j = %d --- y = %d\n",cnt,i,j,y);
-						g->mat[i][y+1]=g->mat[i][y+1]+1;
-						break;
-					}
-				}
-			}
-		}
-	}
-
-}
-
-graphe_matrice * initialisation(int nbS)
+//initialisation indice_matrice
+chaine * init_indice_matrice(chaine *c,int taille)
 {
 	int i;
-	graphe_matrice *g;
-	g=(graphe_matrice*)malloc(sizeof(graphe_matrice));
-	g->taille=nbS;
-	g->mat=(int**)malloc(sizeof(int*)*nbS);
-
-	for(i=0;i<nbS;i++)
-	{
-		g->mat[i]=(int*)calloc(nbS,sizeof(int));
+	for(i=0;i<taille;i++){
+		c[i].indice_matrice=i;
 	}
-	g->mots=(char **)malloc(sizeof(char*)*nbS);
-	return g;
+	return c;
 }
 
-graphe_matrice * ajout_mot(graphe_matrice * g,char * path)
+// Fonction effectuant l'allocation dynamique du tableau de mots
+char ** initialisationTabMots(int taille)
+{
+	char ** mots;
+	int i;
+	mots = (char**) malloc(sizeof(char **)*taille);
+	//Ne pas oublier d'initialiser chaque sous tableau sinon on se retrouve comme un connard avec une segfault !
+	for(i=0;i<taille;i++)
+		mots[i]=(char*) malloc(sizeof(char*));
+	return mots;
+}
+
+// Fonction effectuant l'allocation dynamique du tableau de liste chainé
+chaine * initialisationTabChaine(int taille)
+{
+	chaine * tab;
+	int i;
+	tab = (chaine *) malloc(sizeof(chaine *)*taille);
+	for(i=0;i<taille;i++)
+		tab[i].indice_matrice=(int) malloc(sizeof(int));
+	for(i=0;i<taille;i++)
+		tab[i].poid=(int) malloc(sizeof(int));
+	return tab;
+}
+// Fonction remplissant le tableau avec tous les mots uniques
+char  ** ajout_mot(char ** mots,char * path, int taille)
 {
 	int i;
 	size_t len = 0;
 	FILE * fichier;
 	fichier = fopen(path,"r+");
-	for(i=0;i<g->taille-4;i++)
+	for(i=0;i<taille;i++)
 	{
-		getline(&g->mots[i],&len,fichier);
-		g->mots[i] = strtok(g->mots[i],"\n");
+		if(getline(&mots[i],&len,fichier)!=-1)
+		{
+			mots[i] = strtok(mots[i],"\n");
+		}else
+		{
+			perror("Getline");
+		}
 	}
 	fclose(fichier);
-	return g;
+	return mots;
 
 }
 
+//Fonction calculant le nombre de ligne d'un fichier (permet d'avoir le nombre de mots)
 int nbsommet(char * path)
 {
 	int nb=0;
@@ -132,30 +108,36 @@ int nbsommet(char * path)
 	nb=nb+4;
 	return nb;
 }
+//Penser à renommer ce fichier il ne s'agit plus d'une matrice !
 
 int main(int argc, char const *argv[])
 {
-	graphe_matrice *g, *g2;
-	char * path = "../motUnique";
-	char * mot = "../mots";
-	int sommet,sommet2;
+	char * pathUnique = "../motUnique";
+	int taille;
+	char ** mots;
+	chaine * tab;
 
-	printf("sommet");
-	sommet = nbsommet(path);
-	sommet2= nbsommet(mot);
-	printf("init");
-	g = initialisation(sommet);
-	g2 = initialisation(sommet2);
-	printf("ajout");
-	g = ajout_mot(g,path);
-	g2 = ajout_mot(g2,mot);
-	printf("mot : %d --> %s\n", 17000,g2->mots[17000] );
-	printf("Nombre de sommets de g: %d\n",g->taille);
-	printf("Nombre de sommets de g2: %d\n",g2->taille);
 
-	printf("ponde");
-	ponderation(g,g2);
-	gen_dot(g,"AA");
+	printf("taille\n");
+	taille = nbsommet(pathUnique);
+	
+	//Allocation dynamique de la taille 
+	printf("init mots\n");
+	mots = initialisationTabMots(taille);
+
+	//allocation  dynamique du tableau de chaine
+	printf("init tab");
+	tab = initialisationTabChaine(taille);
+	
+	//Remplissage du tableau de mots
+	printf("ajout mot\n");
+	mots = ajout_mot(mots,pathUnique,taille);
+
+	//Remplissage du tableau de chaine
+	printf("Ajout indice_matrice\n");
+	tab = init_indice_matrice(tab,taille);
+
+
 
 	return 0;
 }
