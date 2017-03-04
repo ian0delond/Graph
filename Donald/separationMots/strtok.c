@@ -81,11 +81,11 @@ int main(int argc, char *argv[])
 
 												if (tok10[0]=='@') strcpy(tok10,"@");
 												if (tok10[0]=='#') strcpy(tok10,"#");
-												if (tok10[0]=='w' && tok10[1]=='w' && tok10[2]=='w') strcpy(tok10,"§");
-												if (tok10[0]=='h' && tok10[1]=='t' && tok10[2]=='t' && tok10[3]=='p') strcpy(tok10,"§");
+												if (tok10[0]=='w' && tok10[1]=='w' && tok10[2]=='w') strcpy(tok10,"*");
+												if (tok10[0]=='h' && tok10[1]=='t' && tok10[2]=='t' && tok10[3]=='p') strcpy(tok10,"*");
 												if (tok10[0]=='n' && tok10[1]=='@') strcpy(tok10,"@");
 												if (tok10[0]=='n' && tok10[1]=='#') strcpy(tok10, "#");
-												if (tok10[0]=='n' && tok10[1]=='h' && tok10[2]=='t' && tok10[3]=='t' && tok10[4]=='p') strcpy(tok10,"§");
+												if (tok10[0]=='n' && tok10[1]=='h' && tok10[2]=='t' && tok10[3]=='t' && tok10[4]=='p') strcpy(tok10,"*");
 												if (tok10[0]=='p' && tok10[1]=='i' && tok10[2]=='c' && tok10[3]=='.' && tok10[4]=='t') strcpy(tok10,"PIC");
 
 												for (str11 = tok10; ; str11 = NULL) 
