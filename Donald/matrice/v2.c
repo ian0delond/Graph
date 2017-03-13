@@ -46,9 +46,15 @@ char ** ajout_mot(char * path, int taille)
 	int i;
 	char ** mots = NULL;
 	size_t len = 0;
+
+	mots = (char **) malloc(sizeof(char **)*taille);
+	for(i=0;i<taille;i++)
+	{
+		mots[i] = (char*)malloc(sizeof(char));
+	}
 	FILE * fichier;
 	fichier = fopen(path,"r+");
-	for(i=0;i<taille-4;i++)
+	for(i=0;i<taille;i++)
 	{
 		getline(&mots[i],&len,fichier);
 		mots[i] = strtok(mots[i],"\n");
@@ -56,6 +62,8 @@ char ** ajout_mot(char * path, int taille)
 	fclose(fichier);
 	return mots;
 }
+
+
 
 /*
 fonction pour recuperer le nombre de ligne d'un fichier
@@ -71,7 +79,6 @@ int nbsommet(char * path)
 	while(getline(&ligne,&len,fichier)!=-1)
 		nb++;
 	fclose(fichier);
-	nb=nb+4;
 	return nb;
 }
 
@@ -110,8 +117,8 @@ int main(int argc, char const *argv[])
 	graphe * g;
 	char ** tab_mot_unique;
 	char ** tab_mot_tot;
-	char * motunique = "../motUnique";
-	char * motTot = "../mots";
+	char * motunique = "motUnique";
+	char * motTot = "mots";
 	int taille_unique,taille_tot;
 
 	taille_unique = nbsommet(motunique);
@@ -121,7 +128,9 @@ int main(int argc, char const *argv[])
 
 	tab_mot_unique = ajout_mot(motunique,taille_unique);
 	tab_mot_tot = ajout_mot(motTot,taille_tot);
-	ponderation(taille_unique,taille_tot,);
-
+	for(int i=0;i<taille_unique;i++)
+	{
+		printf("mots : %s",tab_mot_unique[i]);
+	}
 	return 0;
 }
