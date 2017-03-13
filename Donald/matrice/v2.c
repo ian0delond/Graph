@@ -75,13 +75,41 @@ int nbsommet(char * path)
 	return nb;
 }
 
-
+/*
+void ponderation(int taille_unique,int taille_tot,char ** tab_mot_Unique,char ** tab_mot_Tot)
+{
+	int i,j,y;
+	int cnt =0;
+	for(i=0;i<taille;i++)
+	{
+//		printf("i = %d --- %s\n", i,g->mots[i]);
+		for(j=0;j<taille_tot;j++)
+		{
+			if(tab_mot_Tot[j]==NULL)
+				break;
+//			printf("j = %d --- %s\n",j,g2->mots[j]);
+			if(strcmp(g->mots[i],tab_mot_Tot[j])==0)
+			{
+				for(y=0;y<taille_unique;y++)
+				{
+					if(strcmp(tab_mot_unique[y],tab_mot_Tot[j+1])==0)
+					{
+						cnt++;
+						printf("nb match = %d --- i = %d --- j = %d --- y = %d\n",cnt,i,j,y);
+						g->mat[i][y+1]=g->mat[i][y+1]+1;
+						break;
+					}
+				}
+			}
+		}
+	}
+}*/
 
 int main(int argc, char const *argv[])
 {
 	graphe * g;
 	char ** tab_mot_unique;
-	char ** tab_mot_tot
+	char ** tab_mot_tot;
 	char * motunique = "../motUnique";
 	char * motTot = "../mots";
 	int taille_unique,taille_tot;
@@ -92,6 +120,8 @@ int main(int argc, char const *argv[])
 	g = creation_graphe_vide(taille_unique);
 
 	tab_mot_unique = ajout_mot(motunique,taille_unique);
+	tab_mot_tot = ajout_mot(motTot,taille_tot);
+	ponderation(taille_unique,taille_tot,);
 
 	return 0;
 }
