@@ -63,8 +63,6 @@ char ** ajout_mot(char * path, int taille)
 	return mots;
 }
 
-
-
 /*
 fonction pour recuperer le nombre de ligne d'un fichier
 Et donc vu qu'on a un mot par ligne on obtient le nombre de mots
@@ -112,14 +110,103 @@ void ponderation(int taille_unique,int taille_tot,char ** tab_mot_Unique,char **
 	}
 }*/
 
+int est_voisin (graphe *g , int a , int b )
+{
+	liste *tmp;
+	if(a>=g->taille||b>=g->taille)
+		return 0;
+	tmp=g->ladj[a];
+	while(tmp!=NULL)
+	{
+		if(tmp->mot==b)
+			return 1;		
+		tmp=tmp->next;
+	}
+	return 0;
+}
+
+int degre (graphe*g,int s)
+{
+	liste*tmp;
+	int nb=0;
+	if(s>=g->taille)return 0;
+	tmp=g->ladj[s];
+	while(tmp!=NULL)
+	{
+		nb++;
+		tmp=tmp->next;
+	}
+	return nb;
+}
+
+void print_graphe(graphe*g, char**tab_mot_unique)
+{
+	FILE * fichier1 = NULL;
+	fichier1 = fopen("TEST_GRAPH","w+");
+	int i;
+
+	liste *tmp;
+	for(i=0;i<g->taille;i++)
+	{
+		fprintf(fichier1,"%d( degre%d -- %s )",i,degre(g,i),tab_mot_unique[i]);
+		tmp=g->ladj[i];
+		while(tmp!=NULL)
+		{
+			fprintf(fichier1,"->%d[%d] : %s\n", tmp->mot, tmp->poids, tab_mot_unique[tmp->mot]);
+			tmp=tmp->next;
+		}
+	}
+	fclose(fichier1);
+}
+
+liste *ajout_maillon(graphe *g, int i, int y)
+{
+	liste *p, *l; //p : liste temporaire
+
+	l =creation_maillon(y,1);
+	
+	if(est_voisin(g,i,y)==1) //si i et y sont déjà voisins, on incrément le poids de y
+	{
+		printf("VOISIN %d - %d\n",i,y);
+		p = g->ladj[i] ;
+		while(p->mot!=y)
+		{	
+			p=p->next;
+		}
+		p->poids++;
+	}
+
+	else
+	{
+		printf(" %d  ---- %d\n", i,y);
+
+		if(g->ladj[i] == NULL) //nouvelle liste
+		{
+			g->ladj[i] = l;
+		}
+		else //quand la liste existe déjà, on remonte la pile et on ajoute
+		{
+			p = g->ladj[i] ; 
+			while(p->next!=NULL)
+			{
+				p=p->next;
+			}
+			p->next = l;
+		}
+	}
+	return g->ladj[i];
+}
+
 int main(int argc, char const *argv[])
 {
 	graphe * g;
 	char ** tab_mot_unique;
 	char ** tab_mot_tot;
-	char * motunique = "motUnique";
-	char * motTot = "mots";
+	char * motunique = "../motUnique";
+	char * motTot = "../mots";
 	int taille_unique,taille_tot;
+	int i,j,y;
+	liste *tmp;
 
 	taille_unique = nbsommet(motunique);
 	taille_tot = nbsommet(motTot);
@@ -128,9 +215,32 @@ int main(int argc, char const *argv[])
 
 	tab_mot_unique = ajout_mot(motunique,taille_unique);
 	tab_mot_tot = ajout_mot(motTot,taille_tot);
-	for(int i=0;i<taille_unique;i++)
+/*	for(int i=0;i<taille_unique;i++)
 	{
-		printf("mots : %s",tab_mot_unique[i]);
+		printf("mots : %s - %d\n",tab_mot_unique[i],i);
+	}*/
+
+	printf("mots : %s - %d\n",tab_mot_tot[taille_tot-1],taille_tot-1);
+	printf("mots : %s - %d\n",tab_mot_tot[taille_unique-1],taille_unique-1);
+
+	for(i=0;i<taille_unique;i++)
+	{
+		for (j=0 ; j < taille_tot-1 ; j++)
+		{	//on cherche à retrouver un mot de la liste des mots uniques dans la liste des mots.
+			if (strcmp(tab_mot_unique[i], tab_mot_tot[j])==0)
+			{
+				//on recherche la position du mot suivant le mot trouvé dans la liste des mots uniques
+				for(y=0 ; y < taille_unique-1 ; y++) //pourquoi ça semble fonctionner avec "taille_unique-1" ??
+					if(strcmp(tab_mot_tot[j+1], tab_mot_unique[y])==0)
+						break;
+				g->ladj[i] = ajout_maillon(g,i,y);
+				//printf("%s(%d) - %s(%d)\n",tab_mot_unique[i],i,tab_mot_unique[y],y);
+				//printf("%s\n", tab_mot_unique[y]);
+			}
+		}
 	}
+	//printf("%d\n",i );
+	print_graphe(g,tab_mot_unique);
+
 	return 0;
 }
