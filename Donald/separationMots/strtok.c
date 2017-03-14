@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[])
 {
-	char *str1, *str2, *tok1, *tok2, *str3, *tok3;
+	char *str1, *str2, *tok1, *tok2, *str3, *tok3, *tmp;
 	char *str4, *tok4,*saveptr4;
 	char *str5, *tok5,*saveptr5;
 	char *str6, *tok6,*saveptr6;
@@ -15,13 +15,14 @@ int main(int argc, char *argv[])
 	char *str11, *tok11,*saveptr11;
 	char *str12, *tok12,*saveptr12;
 	char *str13, *tok13,*saveptr13;
+	char *str14, *tok14,*saveptr14;
+	char *str15, *tok15,*saveptr15;
 
 	char *saveptr1, *saveptr2, *saveptr3;
-	char * pathtweet = "../Trumptweet000";
+	char * pathtweet = "../Trumptweet";
 	int i,j;
 	FILE * fichier1 = NULL;
 	fichier1 = fopen("../mots","w+");
-
 	char * ligne;
 	size_t len = 0;
 	FILE * fichier;
@@ -35,7 +36,7 @@ int main(int argc, char *argv[])
 				break;
 			for (str2 = tok1; ; str2 = NULL) 
 			{
-				tok2 = strtok_r(str2, "\"", &saveptr2);
+				tok2 = strtok_r(str2, "'", &saveptr2);
 				if (tok2 == NULL)
 					break;
 				for (str3 = tok2; ; str3 = NULL) 
@@ -78,13 +79,8 @@ int main(int argc, char *argv[])
 												tok10 = strtok_r(str10, "!", &saveptr10);
 												if (tok10 == NULL)
 													break;
-
-												if (tok10[0]=='@') strcpy(tok10,"@");
-												if (tok10[0]=='#') strcpy(tok10,"#");
 												if (tok10[0]=='w' && tok10[1]=='w' && tok10[2]=='w') strcpy(tok10,"*");
 												if (tok10[0]=='h' && tok10[1]=='t' && tok10[2]=='t' && tok10[3]=='p') strcpy(tok10,"*");
-												if (tok10[0]=='n' && tok10[1]=='@') strcpy(tok10,"@");
-												if (tok10[0]=='n' && tok10[1]=='#') strcpy(tok10, "#");
 												if (tok10[0]=='n' && tok10[1]=='h' && tok10[2]=='t' && tok10[3]=='t' && tok10[4]=='p') strcpy(tok10,"*");
 												if (tok10[0]=='p' && tok10[1]=='i' && tok10[2]=='c' && tok10[3]=='.' && tok10[4]=='t') strcpy(tok10,"PIC");
 
@@ -103,8 +99,27 @@ int main(int argc, char *argv[])
 															tok13 = strtok_r(str13, "/", &saveptr13);
 															if (tok13 == NULL)
 																break;
-															printf("%s\n",tok13);
-															fprintf(fichier1, "%s\n", tok13);
+															for (str14 = tok13; ; str14 = NULL) 
+															{
+																tok14 = strtok_r(str14, "?", &saveptr14);
+																if (tok14 == NULL)
+																	break;
+																for (str15 = tok14; ; str15 = NULL) 
+																{
+																	tok15 = strtok_r(str15, ":", &saveptr15);
+																	tmp =tok15;
+																	if (tok15 == NULL)
+																		break;
+																	if (tok15[0]=='@') strcpy(tok15,"@");
+																	if (tok15[0]=='#') strcpy(tok15,"#");
+																	if (tok15[0]=='n' && tok15[1]=='@') strcpy(tok15,"@");
+																	if (tok15[0]=='n' && tok15[1]=='#') strcpy(tok15, "#");
+																	if (strrchr(tmp, '_')!=NULL)break;
+																	printf("%s\n",tok15);
+																	fprintf(fichier1, "%s\n", tok15);
+																}
+															}
+
 														}
 													}
 												}
@@ -113,7 +128,7 @@ int main(int argc, char *argv[])
 									}
 								}	
 							}
-						}//’ … — ' '
+						}//’ … — ' ' ” “ ‘ `
 					}
 				}
 			}
@@ -123,4 +138,6 @@ int main(int argc, char *argv[])
 	fclose(fichier1);
 	fclose(fichier);
 	exit(EXIT_SUCCESS);
+
+	return 1;
 }
