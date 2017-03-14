@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 struct liste 
 {
@@ -79,36 +80,6 @@ int nbsommet(char * path)
 	fclose(fichier);
 	return nb;
 }
-
-/*
-void ponderation(int taille_unique,int taille_tot,char ** tab_mot_Unique,char ** tab_mot_Tot)
-{
-	int i,j,y;
-	int cnt =0;
-	for(i=0;i<taille;i++)
-	{
-//		printf("i = %d --- %s\n", i,g->mots[i]);
-		for(j=0;j<taille_tot;j++)
-		{
-			if(tab_mot_Tot[j]==NULL)
-				break;
-//			printf("j = %d --- %s\n",j,g2->mots[j]);
-			if(strcmp(g->mots[i],tab_mot_Tot[j])==0)
-			{
-				for(y=0;y<taille_unique;y++)
-				{
-					if(strcmp(tab_mot_unique[y],tab_mot_Tot[j+1])==0)
-					{
-						cnt++;
-						printf("nb match = %d --- i = %d --- j = %d --- y = %d\n",cnt,i,j,y);
-						g->mat[i][y+1]=g->mat[i][y+1]+1;
-						break;
-					}
-				}
-			}
-		}
-	}
-}*/
 
 int est_voisin (graphe *g , int a , int b )
 {
@@ -197,6 +168,131 @@ liste *ajout_maillon(graphe *g, int i, int y)
 	return g->ladj[i];
 }
 
+
+void gen_dir_dot (graphe *g, char *nomdot, char **tab_mot_unique)
+{
+	FILE* fichier;
+	int i,j;
+	liste *tmp; // liste temporaire que l'on va utiliser pour parcourir les listes de chaque sommet.
+
+	fichier = fopen(nomdot,"w+");
+	fputs("digraph G{\nsize=\"15.0,15.0\";\nratio=\"fill\";\nnode[height=0.1, width=0.1]\n",fichier);
+	//la création des sommets avec un label correspondant au mot qu'ils représentent.
+	for(i=0 ; i < g->taille ; i++)
+	{
+		fprintf(fichier, "\t%d [label=\"%s\"]\n",i, tab_mot_unique[i]);
+	}
+
+	printf("label : fait\n");
+
+/*	for(i = 0 ; i < 3800 ; i++)
+	{
+		tmp = g->ladj[i];
+		while(tmp->next != NULL)
+		{
+			fprintf(fichier, "%d -> %d\n", i, tmp->mot);
+			tmp=tmp->next; //permet de parcourir la liste chainee.
+		}
+	}
+*/	fputs("}",fichier);
+	fclose(fichier);
+}
+
+int calc_poids(graphe *g, int i)
+{
+	liste *tmp;
+	int pds =0;
+	tmp = g->ladj[i];
+	while(tmp->next!=NULL)
+	{
+		pds = pds +tmp->poids;
+		tmp=tmp->next;
+	}
+
+	return pds;
+}
+
+char *gen_nomdot(int j, char* nomdot)
+{
+	char numdot0='0';
+	char numdot1='0';
+	nomdot[2]='.';
+	nomdot[3]='d';
+	nomdot[4]='o';
+	nomdot[5]='t';
+	nomdot[6]='\0';
+
+	for (int i = 0; i < j; ++i)
+	{
+		nomdot[0]=numdot0;
+		nomdot[1]=numdot1;
+		//printf("%s\n",nomdot );
+		if (numdot1<='9')
+		{
+			numdot1++;
+		}
+		if (numdot1>'9')
+		{
+			numdot1='0';
+			numdot0++;
+		}
+		if (numdot0>'9')
+		{
+			break;
+		}
+	}
+	return nomdot;
+}
+
+void gen_tweet(graphe *g, char **tab_mot_unique)
+{
+	int i=1, val, pds_obj, pds, count, len=0;
+	FILE* fichier;
+	char nomdot[6];
+	char *str;
+	liste *tmp;
+
+	str=strncpy(str,"",0);
+	val=rand()%g->taille; // i de départ.
+	while(1)
+	{
+		pds_obj = rand()%((calc_poids(g,val)+1)); //on définit un poids "cible" aléatoire inférieur ou égal au poids max
+
+		tmp = g->ladj[val];
+
+		pds=0;
+		while(tmp->next!=NULL && pds_obj > pds)
+		{
+			pds = pds + tmp->poids;
+			tmp=tmp->next;
+		}	
+		val = tmp->mot;
+
+		len = len + strlen(tab_mot_unique[val]) + 1; //+1 pour l'espace
+		if (len > 139 || strcmp(tab_mot_unique[val],"-")==0)
+		{
+			printf(".\n");
+			break;
+		}	
+
+		printf(" %s", tab_mot_unique[val]);
+
+		/*if(val_p!= -1)
+		{
+			fichier = fopen(gen_nomdot(i,nomdot),"w+");
+			fputs("digraph G{\nsize=\"15.0,15.0\";\nratio=\"fill\";\nnode[height=0.1, width=0.1]\n",fichier);
+			//strcat(str, tab_mot_unique[val_p]);
+			fprintf(fichier, "%s -> %s\n", tab_mot_unique[val_p], tab_mot_unique[val]);
+			fprintf(fichier, "}");
+			fclose(fichier);
+			i++;
+		}
+		val_p = val;*/
+	}
+	printf("\n");
+	
+}
+
 int main(int argc, char const *argv[])
 {
 	graphe * g;
@@ -207,6 +303,9 @@ int main(int argc, char const *argv[])
 	int taille_unique,taille_tot;
 	int i,j,y;
 	liste *tmp;
+    time_t t;
+
+  	srand((unsigned) time(&t));
 
 	taille_unique = nbsommet(motunique);
 	taille_tot = nbsommet(motTot);
@@ -215,10 +314,6 @@ int main(int argc, char const *argv[])
 
 	tab_mot_unique = ajout_mot(motunique,taille_unique);
 	tab_mot_tot = ajout_mot(motTot,taille_tot);
-/*	for(int i=0;i<taille_unique;i++)
-	{
-		printf("mots : %s - %d\n",tab_mot_unique[i],i);
-	}*/
 
 	printf("mots : %s - %d\n",tab_mot_tot[taille_tot-1],taille_tot-1);
 	printf("mots : %s - %d\n",tab_mot_tot[taille_unique-1],taille_unique-1);
@@ -239,8 +334,19 @@ int main(int argc, char const *argv[])
 			}
 		}
 	}
-	//printf("%d\n",i );
-	print_graphe(g,tab_mot_unique);
 
+
+	//printf("%d\n",i );
+	printf("lance print_graphe\n");
+	print_graphe(g,tab_mot_unique);
+	printf("taille : %d\n", g->taille );
+	//gen_dir_dot(g,"graph.dot",tab_mot_unique);
+
+
+	for(i=0 ; i<20 ; i++)
+	{	
+		gen_tweet(g, tab_mot_unique);
+	}
+	//gen_tweet(g, tab_mot_unique);
 	return 0;
 }
