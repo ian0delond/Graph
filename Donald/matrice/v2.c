@@ -117,6 +117,7 @@ void print_graphe(graphe*g, char**tab_mot_unique)
 	int i;
 
 	liste *tmp;
+
 	for(i=0;i<g->taille;i++)
 	{
 		fprintf(fichier1,"%d( degre%d -- %s )",i,degre(g,i),tab_mot_unique[i]);
@@ -264,7 +265,7 @@ void gen_tweet(graphe *g, char **tab_mot_unique)
 	
 }
 
-void gen_dir_dot (graphe *g, char *nomdot)
+void gen_dir_dot (graphe *g, char *nomdot, char **tab_mot_unique)
 {
 	FILE* fichier;
 	liste *temp;
@@ -272,7 +273,12 @@ void gen_dir_dot (graphe *g, char *nomdot)
 	int i;
 	fichier = fopen(nomdot,"w+");
 	fprintf(fichier,"digraph G{\n");
-	//la création des sommets avec un label correspondant au mot qu'ils représentent.
+//ajout de labels permettant de renseigner la chaine de caractere attache a chaque mot
+	for(i=0 ; i < g->taille ; i++)
+ 	{
+ 		fprintf(fichier, "\t%d [label=\"%s\"]\n",i, tab_mot_unique[i]);
+ 	}
+//creation des aretes.
 	for(i=0 ; i < g->taille ; i++)
 	{
 		temp = g->ladj[i];
@@ -293,8 +299,8 @@ int main(int argc, char const *argv[])
 	graphe * g;
 	char ** tab_mot_unique;
 	char ** tab_mot_tot;
-	char * motunique = "motUnique";
-	char * motTot = "mots";
+	char * motunique = "../motUnique";
+	char * motTot = "../mots";
 	int taille_unique,taille_tot;
 	int i,j,y;
     time_t t;
@@ -329,7 +335,7 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	gen_dir_dot(g,"graphe.dot");
+	gen_dir_dot(g,"graphe.dot",tab_mot_unique);
 
 	/*
 	//printf("%d\n",i );
