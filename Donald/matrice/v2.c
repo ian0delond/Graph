@@ -187,49 +187,63 @@ int calc_poids(graphe *g, int i)
 
 char *gen_nomdot(int j, char* nomdot)
 {
-	char numdot0='0';
-	char numdot1='0';
 	nomdot[2]='.';
 	nomdot[3]='d';
 	nomdot[4]='o';
 	nomdot[5]='t';
 	nomdot[6]='\0';
 
-	for (int i = 0; i < j; ++i)
-	{
-		nomdot[0]=numdot0;
-		nomdot[1]=numdot1;
-		//printf("%s\n",nomdot );
-		if (numdot1<='9')
-		{
-			numdot1++;
-		}
-		if (numdot1>'9')
-		{
-			numdot1='0';
-			numdot0++;
-		}
-		if (numdot0>'9')
-		{
-			break;
-		}
-	}
+	nomdot[1]=j%10 + '0';
+	nomdot[0]=(j/10)%10 + '0';
 	return nomdot;
+}
+
+void gen_dot(int *valtab, int nbmot, char **tab_mot_unique)
+{
+	FILE* fichier;
+	int i,j=1;
+	char nomdot[7];
+
+	while(j<nbmot-1)
+	{
+		fichier = fopen(gen_nomdot(j,nomdot),"w+");
+		fprintf(fichier,"digraph G{\nsize=\"5.0,5.0\";\nratio=\"fill\";\nnode[height=0.1, width=0.1]\n");
+		fprintf(fichier, "\t%d [label=\"%s\"]\n",valtab[0], tab_mot_unique[valtab[0]]);
+
+		//ajout de labels permettant de renseigner la chaine de caractere attache a chaque mot
+		for(i=1 ; i <= j ; i++)
+		{
+			fprintf(fichier, "\t%d [label=\"%s\"]\n",valtab[i], tab_mot_unique[valtab[i]]);
+		}
+		//creation des aretes.
+		for(i=1 ; i <= j ; i++)
+		{
+			fprintf(fichier, "\t%d -> %d\n", valtab[i-1], valtab[i]);
+		}
+		fputs("}",fichier);
+		fclose(fichier);
+
+		j++;
+	}
 }
 
 void gen_tweet(graphe *g, char **tab_mot_unique)
 {
-	int val, pds_obj, pds, len=0;
+	int val=0, pds_obj, pds, len=0;
 	char *str = NULL;
 	liste *tmp;
+	int valtab[70], i=0; // va servir à enregistrer les valeurs pour la creation du .dot
 
 	str=strncpy(str,"",0);
-	val=rand()%g->taille; // i de départ.
+
+	// le premier mot suit le mot "-"
+	while( strcmp(tab_mot_unique[val], "-")!=0)
+			val++;
+	pds = rand()%((calc_poids(g,val)+1)); //on définit un poids "cible" aléatoire inférieur ou égal au poids max
+	tmp = g->ladj[val];
 	while(1)
 	{
-		printf("avant calc\n");
 		pds_obj = rand()%((calc_poids(g,val)+1)); //on définit un poids "cible" aléatoire inférieur ou égal au poids max
-		printf("apres\n");
 		tmp = g->ladj[val];
 
 		pds=0;
@@ -239,30 +253,21 @@ void gen_tweet(graphe *g, char **tab_mot_unique)
 			tmp=tmp->next;
 		}	
 		val = tmp->mot;
+		valtab[i]=val;
+		i++;
 
+		// on s'assure que le nombre de caracteres du tweet ne depasse pas 140.
 		len = len + strlen(tab_mot_unique[val]) + 1; //+1 pour l'espace
 		if (len > 139 || strcmp(tab_mot_unique[val],"-")==0)
 		{
 			printf(".\n");
 			break;
 		}	
-
 		printf(" %s", tab_mot_unique[val]);
 
-		/*if(val_p!= -1)
-		{
-			fichier = fopen(gen_nomdot(i,nomdot),"w+");
-			fputs("digraph G{\nsize=\"15.0,15.0\";\nratio=\"fill\";\nnode[height=0.1, width=0.1]\n",fichier);
-			//strcat(str, tab_mot_unique[val_p]);
-			fprintf(fichier, "%s -> %s\n", tab_mot_unique[val_p], tab_mot_unique[val]);
-			fprintf(fichier, "}");
-			fclose(fichier);
-			i++;
-		}
-		val_p = val;*/
 	}
+	gen_dot(valtab, i, tab_mot_unique);
 	printf("\n");
-	
 }
 
 void gen_dir_dot (graphe *g, char *nomdot, char **tab_mot_unique)
@@ -275,9 +280,9 @@ void gen_dir_dot (graphe *g, char *nomdot, char **tab_mot_unique)
 	fprintf(fichier,"digraph G{\n");
 //ajout de labels permettant de renseigner la chaine de caractere attache a chaque mot
 	for(i=0 ; i < g->taille ; i++)
- 	{
- 		fprintf(fichier, "\t%d [label=\"%s\"]\n",i, tab_mot_unique[i]);
- 	}
+	{
+		fprintf(fichier, "\t%d [label=\"%s\"]\n",i, tab_mot_unique[i]);
+	}
 //creation des aretes.
 	for(i=0 ; i < g->taille ; i++)
 	{
@@ -303,9 +308,9 @@ int main(int argc, char const *argv[])
 	char * motTot = "../mots";
 	int taille_unique,taille_tot;
 	int i,j,y;
-    time_t t;
+	time_t t;
 
-  	srand((unsigned) time(&t));
+	srand((unsigned) time(&t));
 
 	taille_unique = nbsommet(motunique);
 	taille_tot = nbsommet(motTot);
@@ -343,12 +348,14 @@ int main(int argc, char const *argv[])
 	print_graphe(g,tab_mot_unique);
 	printf("taille : %d\n", g->taille );
 	//gen_dir_dot(g,"graph.dot",tab_mot_unique);
+*/
 
-
-	for(i=0 ; i<20 ; i++)
+	while(1)
 	{	
+		scanf("%d",&i);
+		if(i==0) break;
 		gen_tweet(g, tab_mot_unique);
-	}*/
+	}
 	//gen_tweet(g, tab_mot_unique);
 	return 0;
 }
