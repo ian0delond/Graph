@@ -230,11 +230,26 @@ void gen_dot(int *valtab, int nbmot, char **tab_mot_unique)
 void gen_tweet(graphe *g, char **tab_mot_unique)
 {
 	int val=0, pds_obj, pds, len=0;
-	char *str = NULL;
+	char *mot;
 	liste *tmp;
 	int valtab[70], i=0; // va servir à enregistrer les valeurs pour la creation du .dot
 
-	str=strncpy(str,"",0);
+	char **tab_lien;
+	char **tab_hashtag;
+	char **tab_handle;
+	char *lien 		= "../Lien";
+	char *hashtag 	= "../Hashtag";
+	char *handle 	= "../Handle";
+	int taille_lien, taille_hashtag, taille_handle;
+	
+	taille_lien 	= nbsommet(lien);
+	taille_hashtag 	= nbsommet(hashtag);
+	taille_handle 	= nbsommet(handle);
+
+	tab_lien 		= ajout_mot(lien,taille_lien);
+	tab_hashtag 	= ajout_mot(hashtag,taille_hashtag);
+	tab_handle 		= ajout_mot(handle,taille_handle);
+
 
 	// le premier mot suit le mot "-"
 	while( strcmp(tab_mot_unique[val], "-")!=0)
@@ -255,15 +270,25 @@ void gen_tweet(graphe *g, char **tab_mot_unique)
 		val = tmp->mot;
 		valtab[i]=val;
 		i++;
+		mot=tab_mot_unique[val];
+
+		//si le mot est un lien
+		//on selectionne un mot au hasard dans le tableau des liens.
+		if(strcmp(mot,"*")==0)
+			mot=tab_lien[rand()%taille_lien];
+		if(strcmp(mot,"#")==0)
+			mot=tab_hashtag[rand()%taille_hashtag];
+		if(strcmp(mot,"@")==0)
+			mot=tab_handle[rand()%taille_handle];
 
 		// on s'assure que le nombre de caracteres du tweet ne depasse pas 140.
-		len = len + strlen(tab_mot_unique[val]) + 1; //+1 pour l'espace
-		if (len > 139 || strcmp(tab_mot_unique[val],"-")==0)
+		len = len + strlen(mot) + 1; //+1 pour l'espace
+		if (len > 139 || strcmp(mot,"-")==0)
 		{
 			printf(".\n");
 			break;
 		}	
-		printf(" %s", tab_mot_unique[val]);
+		printf(" %s", mot);
 
 	}
 	gen_dot(valtab, i, tab_mot_unique);
@@ -306,13 +331,14 @@ int main(int argc, char const *argv[])
 	char ** tab_mot_tot;
 	char * motunique = "../motUnique";
 	char * motTot = "../mots";
-	int taille_unique,taille_tot;
+	int taille_unique, taille_tot;
 	int i,j,y;
 	time_t t;
 
 	srand((unsigned) time(&t));
 
 	taille_unique = nbsommet(motunique);
+
 	taille_tot = nbsommet(motTot);
 
 	g = creation_graphe_vide(taille_unique);
@@ -340,22 +366,20 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	gen_dir_dot(g,"graphe.dot",tab_mot_unique);
+	//gen_dir_dot(g,"graphe.dot",tab_mot_unique);
 
 	/*
 	//printf("%d\n",i );
 	printf("lance print_graphe\n");
 	print_graphe(g,tab_mot_unique);
 	printf("taille : %d\n", g->taille );
-	//gen_dir_dot(g,"graph.dot",tab_mot_unique);
+	gen_dir_dot(g,"graph.dot",tab_mot_unique);
 */
-
 	while(1)
 	{	
 		scanf("%d",&i);
 		if(i==0) break;
 		gen_tweet(g, tab_mot_unique);
 	}
-	//gen_tweet(g, tab_mot_unique);
 	return 0;
 }
